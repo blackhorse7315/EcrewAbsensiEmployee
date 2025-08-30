@@ -283,7 +283,12 @@
                                     <p class="text-sm text-gray-600 mb-2">Alamat: <span id="addressIn"></span></p>
                                     <div id="radiusStatusIn" class="p-3 rounded-lg text-sm font-medium"></div>
                                 </div>
-                                <div id="mapIn" class="hidden h-64 rounded-lg border"></div>
+                                <div id="mapIn" class="hidden h-64 rounded-lg border bg-gray-100 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marker-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-500">Peta lokasi akan ditampilkan di sini</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -326,7 +331,12 @@
                                     <p class="text-sm text-gray-600 mb-2">Alamat: <span id="addressOut"></span></p>
                                     <div id="radiusStatusOut" class="p-3 rounded-lg text-sm font-medium"></div>
                                 </div>
-                                <div id="mapOut" class="hidden h-64 rounded-lg border"></div>
+                                <div id="mapOut" class="hidden h-64 rounded-lg border bg-gray-100 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marker-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-500">Peta lokasi akan ditampilkan di sini</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -615,6 +625,211 @@
         </div>
     </div>
 
+    <!-- Admin Attendance Edit Modal -->
+    <div id="adminAttendanceEditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl card-shadow w-full max-w-6xl mx-4 slide-in max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Edit Data Absensi</h2>
+                    <button onclick="hideAdminAttendanceEdit()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <form id="adminAttendanceEditForm" class="space-y-8">
+                    <input type="hidden" id="editAttendanceId">
+                    
+                    <!-- Employee Info (Read-only) -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Karyawan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                                <input type="text" id="editEmployeeName" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" id="editEmployeeEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
+                                <input type="text" id="editEmployeeDivision" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Posisi</label>
+                                <input type="text" id="editEmployeePosition" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clock In Section -->
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-green-800 mb-4">Data Clock In</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Clock In</label>
+                                    <input type="datetime-local" id="editClockInTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bertugas Sebagai</label>
+                                    <select id="editDutyAs" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="Director">Director</option>
+                                        <option value="Safety, Quality & Security Manager">Safety, Quality & Security Manager</option>
+                                        <option value="Operation Manager">Operation Manager</option>
+                                        <option value="Maintenance Manager">Maintenance Manager</option>
+                                        <option value="Chief Pilot Fixed Wing">Chief Pilot Fixed Wing</option>
+                                        <option value="Chief Pilot Rotary Wing">Chief Pilot Rotary Wing</option>
+                                        <option value="Chief Flight Support">Chief Flight Support</option>
+                                        <option value="Chief Inspector">Chief Inspector</option>
+                                        <option value="Chief Engineer">Chief Engineer</option>
+                                        <option value="Chief Finance, Accounting & Staf">Chief Finance, Accounting & Staf</option>
+                                        <option value="Chief Engineering">Chief Engineering</option>
+                                        <option value="Pilot in Command">Pilot in Command</option>
+                                        <option value="Second in Command">Second in Command</option>
+                                        <option value="Ground Instructor">Ground Instructor</option>
+                                        <option value="Flight Instructor">Flight Instructor</option>
+                                        <option value="Company Check Pilot">Company Check Pilot</option>
+                                        <option value="Engineer">Engineer</option>
+                                        <option value="Line Pilot">Line Pilot</option>
+                                        <option value="Cabin Service">Cabin Service</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Flight Support">Flight Support</option>
+                                        <option value="Ground Support">Ground Support</option>
+                                        <option value="Technical Representative">Technical Representative</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Staff">Staff</option>
+                                        <option value="Logistic">Logistic</option>
+                                        <option value="Aviation Security">Aviation Security</option>
+                                        <option value="Driver">Driver</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pekerjaan</label>
+                                    <select id="editWorkType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="Office Hour">Office Hour</option>
+                                        <option value="Standby Flight">Standby Flight</option>
+                                        <option value="Standby on Call">Standby on Call</option>
+                                        <option value="Pos One Gate">Pos One Gate</option>
+                                        <option value="Day Off">Day Off</option>
+                                        <option value="Day Off 7 Consecutive Days for Pilot">Day Off 7 Consecutive Days for Pilot</option>
+                                        <option value="Flight Duty VIP">Flight Duty VIP</option>
+                                        <option value="Ferry Flight">Ferry Flight</option>
+                                        <option value="PPC Simulator">PPC Simulator</option>
+                                        <option value="PPC Aircraft">PPC Aircraft</option>
+                                        <option value="Test Flight">Test Flight</option>
+                                        <option value="Ground Run">Ground Run</option>
+                                        <option value="Recurrent Training">Recurrent Training</option>
+                                        <option value="Recency Flight">Recency Flight</option>
+                                        <option value="Meeting Out of Office">Meeting Out of Office</option>
+                                        <option value="Medical Examination">Medical Examination</option>
+                                        <option value="Annual Leave">Annual Leave</option>
+                                        <option value="Sick">Sick</option>
+                                        <option value="Technical Representative">Technical Representative</option>
+                                        <option value="Aviation Security">Aviation Security</option>
+                                        <option value="Over Time">Over Time</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi Clock In</label>
+                                    <input type="text" id="editLocationIn" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 font-mono text-sm" placeholder="lat, lng">
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Radius Clock In</label>
+                                    <select id="editRadiusStatusIn" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="true">Dalam Radius</option>
+                                        <option value="false">Di Luar Radius</option>
+                                    </select>
+                                </div>
+                                <div id="editOutsideReasonInDiv">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Alasan di Luar Radius</label>
+                                    <textarea id="editOutsideReasonIn" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" rows="3"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Keterlambatan</label>
+                                    <select id="editLateStatus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="false">Tepat Waktu</option>
+                                        <option value="true">Terlambat</option>
+                                    </select>
+                                </div>
+                                <div id="editLateReasonDiv">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Terlambat</label>
+                                    <textarea id="editLateReason" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" rows="3"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Clock In</label>
+                                    <div class="border border-gray-300 rounded-lg p-3">
+                                        <img id="editPhotoIn" class="w-full max-w-xs rounded-lg" alt="Foto Clock In">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clock Out Section -->
+                    <div id="editClockOutSection" class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-red-800 mb-4">Data Clock Out</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Clock Out</label>
+                                    <input type="datetime-local" id="editClockOutTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi Clock Out</label>
+                                    <input type="text" id="editLocationOut" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 font-mono text-sm" placeholder="lat, lng">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Radius Clock Out</label>
+                                    <select id="editRadiusStatusOut" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                        <option value="true">Dalam Radius</option>
+                                        <option value="false">Di Luar Radius</option>
+                                    </select>
+                                </div>
+                                <div id="editOutsideReasonOutDiv">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Alasan di Luar Radius</label>
+                                    <textarea id="editOutsideReasonOut" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Laporan Pekerjaan</label>
+                                    <textarea id="editWorkReport" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" rows="4"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Pekerjaan</label>
+                                    <div class="border border-gray-300 rounded-lg p-3">
+                                        <img id="editPhotoOut" class="w-full max-w-xs rounded-lg hidden" alt="Foto Pekerjaan">
+                                        <p id="editNoPhotoOut" class="text-gray-500 text-sm">Tidak ada foto pekerjaan</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Notes -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-yellow-800 mb-4">Catatan Admin</h3>
+                        <textarea id="editAdminNotes" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500" rows="3" placeholder="Tambahkan catatan admin untuk perubahan ini..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-center space-x-4 pt-4">
+                        <button type="button" onclick="hideAdminAttendanceEdit()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-200">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-200">
+                            <i class="fas fa-save mr-2"></i>Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Modal -->
     <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md mx-4 slide-in">
@@ -711,7 +926,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm text-gray-600">Total Karyawan</p>
-                            <p class="text-2xl font-bold text-gray-800">156</p>
+                            <p id="totalEmployees" class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
                 </div>
@@ -723,7 +938,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm text-gray-600">Hadir Hari Ini</p>
-                            <p class="text-2xl font-bold text-gray-800">142</p>
+                            <p id="presentToday" class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
                 </div>
@@ -735,7 +950,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm text-gray-600">Terlambat</p>
-                            <p class="text-2xl font-bold text-gray-800">8</p>
+                            <p id="lateToday" class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
                 </div>
@@ -747,7 +962,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm text-gray-600">Tidak Hadir</p>
-                            <p class="text-2xl font-bold text-gray-800">6</p>
+                            <p id="absentToday" class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
                 </div>
@@ -762,6 +977,9 @@
                         </button>
                         <button onclick="showAdminTab('employees')" class="admin-tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="employees">
                             Data Karyawan
+                        </button>
+                        <button onclick="showAdminTab('attendance')" class="admin-tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="attendance">
+                            Riwayat Absen
                         </button>
                         <button onclick="showAdminTab('branding')" class="admin-tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="branding">
                             Logo & Branding
@@ -798,6 +1016,67 @@
                             </thead>
                             <tbody id="newsTableBody">
                                 <!-- News will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Attendance History Tab -->
+                <div id="attendanceTab" class="p-6 hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Riwayat Absen Karyawan</h3>
+                        <div class="flex items-center space-x-4">
+                            <!-- Filter Controls -->
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="attendanceNameFilter" placeholder="Cari nama karyawan..." class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm">
+                                
+                                <select id="attendancePeriodFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm">
+                                    <option value="daily">Harian</option>
+                                    <option value="weekly">Mingguan</option>
+                                    <option value="monthly">Bulanan</option>
+                                </select>
+                                
+                                <input type="date" id="attendanceDateFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm">
+                                
+                                <button onclick="applyAttendanceFilter()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200 text-sm">
+                                    <i class="fas fa-filter mr-1"></i>Apply
+                                </button>
+                                
+                                <button onclick="resetAttendanceFilter()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200 text-sm">
+                                    <i class="fas fa-undo mr-1"></i>Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Summary -->
+                    <div id="attendanceFilterSummary" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-blue-800" id="filterSummaryText"></span>
+                            <span class="text-sm font-medium text-blue-900" id="filterResultCount"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Nama</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Tanggal</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Clock In</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Clock Out</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Lokasi</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceHistoryTableBody">
+                                <tr id="noAttendanceDataRow">
+                                    <td colspan="7" class="py-8 px-4 text-center text-gray-500">
+                                        <i class="fas fa-calendar-times text-4xl mb-2"></i>
+                                        <p>Belum ada data absensi</p>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -1030,6 +1309,11 @@
         ];
 
         let nextNewsId = 3;
+
+        // Attendance database - stores all employee attendance records
+        let attendanceDatabase = [];
+
+        let nextAttendanceId = 1;
 
         // Employee database
         const employeeDatabase = {
@@ -1305,6 +1589,139 @@
                 position: "Chief Engineering",
                 role: "USER",
                 password: "leo"
+            },
+            "Khairul Zaman Pohan": {
+                email: "pohan16zaman@gmail.com",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "khairul"
+            },
+            "Sentot Basuki": {
+                email: "sentotbasuki@gmail.com",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "sentot"
+            },
+            "Bobby Feisal Mahardhika": {
+                email: "bobby.feisal22@gmail.com",
+                division: "Staf",
+                position: "Engineering",
+                role: "USER",
+                password: "bobby"
+            },
+            "Tri Widayat": {
+                email: "tri3wiwid@gmail.com",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "tri"
+            },
+            "Isdarminto": {
+                email: "is.darminto35@gmail.com",
+                division: "Staf",
+                position: "Logistic",
+                role: "USER",
+                password: "isdarminto"
+            },
+            "Sulaichan Noor Ali": {
+                email: "sulaichann@gmail.com",
+                division: "Staf",
+                position: "Logistic",
+                role: "USER",
+                password: "sulaichan"
+            },
+            "Sri Muljono Bayu Putro": {
+                email: "sbayuputro@gmail.com",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "sri"
+            },
+            "Asri Gatot Yulianto": {
+                email: "Asrigatot.67@gmail.com",
+                division: "Safety",
+                position: "Aviation Security",
+                role: "USER",
+                password: "asri"
+            },
+            "Nanang Chabibi": {
+                email: "nanangchabibi3@gmail.com",
+                division: "Safety",
+                position: "Aviation Security",
+                role: "USER",
+                password: "nanang"
+            },
+            "Hariyanto": {
+                email: "katellisna423@gmail.com",
+                division: "Safety",
+                position: "Aviation Security",
+                role: "USER",
+                password: "hariyanto"
+            },
+            "Supriyono": {
+                email: "fardhan0509@gmail.com",
+                division: "Staf",
+                position: "Kurir",
+                role: "USER",
+                password: "supriyono"
+            },
+            "Kasna": {
+                email: "kasna.pjln799@gmail.com",
+                division: "Staf",
+                position: "Driver",
+                role: "USER",
+                password: "kasna"
+            },
+            "Rizal Setiawan": {
+                email: "rizalsetiawan020812@gmail.com",
+                division: "Staf",
+                position: "Driver",
+                role: "USER",
+                password: "rizal"
+            },
+            "Ardi Rizki": {
+                email: "ardi.rizk91@gmail.com",
+                division: "Maintenance",
+                position: "Engineer",
+                role: "USER",
+                password: "ardi"
+            },
+            "Wawan Setiawan": {
+                email: "setiawanwawan7312@gmail.com",
+                division: "Operation",
+                position: "Line Pilot",
+                role: "USER",
+                password: "wawan"
+            },
+            "Tommy Saputra": {
+                email: "tommysaputra473@gmail.com",
+                division: "Staf",
+                position: "Chief Finance, Accounting & Tax",
+                role: "USER",
+                password: "tommy"
+            },
+            "Mochamad Riza": {
+                email: "mch_riza@yahoo.com",
+                division: "Safety",
+                position: "Quality, Safety, Security Manager",
+                role: "USER",
+                password: "mochamad"
+            },
+            "Alexander Anggarda Yunan Devata": {
+                email: "alexanderdevata@yahoo.co.id",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "alexander"
+            },
+            "Sukyono": {
+                email: "sskkyy020@gmail.com",
+                division: "Operation",
+                position: "Flight Support",
+                role: "USER",
+                password: "sukyono"
             }
         };
 
@@ -1553,6 +1970,7 @@
             const radiusElement = document.getElementById(`radiusStatus${type === 'in' ? 'In' : 'Out'}`);
             const infoElement = document.getElementById(`location${type === 'in' ? 'In' : 'Out'}Info`);
             const reasonElement = document.getElementById(`outsideReason${type === 'in' ? 'In' : 'Out'}`);
+            const mapElement = document.getElementById(`map${type === 'in' ? 'In' : 'Out'}`);
             
             // Display coordinates
             coordsElement.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -1573,7 +1991,73 @@
                 reasonElement.classList.remove('hidden');
             }
             
+            // Display map
+            displayMap(lat, lng, type, withinRadius);
+            
             infoElement.classList.remove('hidden');
+        }
+
+        // Display map with location marker
+        function displayMap(lat, lng, type, withinRadius) {
+            const mapElement = document.getElementById(`map${type === 'in' ? 'In' : 'Out'}`);
+            
+            // Create a simple visual map representation
+            const mapHTML = `
+                <div class="relative w-full h-full bg-blue-50 rounded-lg overflow-hidden">
+                    <!-- Map background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100"></div>
+                    
+                    <!-- Grid lines for map effect -->
+                    <div class="absolute inset-0 opacity-20">
+                        <div class="grid grid-cols-8 grid-rows-6 h-full">
+                            ${Array(48).fill().map(() => '<div class="border border-gray-300"></div>').join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Office locations -->
+                    ${officeLocations.map((office, index) => `
+                        <div class="absolute w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg transform -translate-x-2 -translate-y-2" 
+                             style="left: ${30 + index * 20}%; top: ${40 + index * 10}%;" 
+                             title="Kantor ${index + 1}">
+                            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                Kantor ${index + 1}
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <!-- Office radius circles -->
+                    ${officeLocations.map((office, index) => `
+                        <div class="absolute border-2 border-blue-300 rounded-full opacity-30" 
+                             style="left: ${25 + index * 20}%; top: ${35 + index * 10}%; width: 60px; height: 60px;">
+                        </div>
+                    `).join('')}
+                    
+                    <!-- User location marker -->
+                    <div class="absolute w-6 h-6 transform -translate-x-3 -translate-y-3" 
+                         style="left: 50%; top: 50%;">
+                        <div class="w-full h-full ${withinRadius ? 'bg-green-500' : 'bg-red-500'} rounded-full border-3 border-white shadow-lg animate-pulse">
+                        </div>
+                        <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 ${withinRadius ? 'bg-green-600' : 'bg-red-600'} text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            ${withinRadius ? 'Dalam Radius' : 'Luar Radius'}
+                        </div>
+                    </div>
+                    
+                    <!-- Coordinates display -->
+                    <div class="absolute bottom-2 left-2 bg-white bg-opacity-90 px-2 py-1 rounded text-xs font-mono">
+                        ${lat.toFixed(4)}, ${lng.toFixed(4)}
+                    </div>
+                    
+                    <!-- Distance info -->
+                    <div class="absolute bottom-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded text-xs">
+                        ${withinRadius ? 'Dalam radius kantor' : 'Di luar radius kantor'}
+                    </div>
+                </div>
+            `;
+            
+            mapElement.innerHTML = mapHTML;
+            mapElement.classList.remove('hidden');
+            mapElement.classList.remove('flex', 'items-center', 'justify-center');
         }
 
         // Preview Work Photo
@@ -1856,8 +2340,30 @@
             
             tbody.insertBefore(row, tbody.firstChild);
             
+            // Add to admin attendance database
+            const attendanceRecord = {
+                id: nextAttendanceId++,
+                employeeName: currentUser.name,
+                employeeEmail: currentUser.email,
+                employeeDivision: currentUser.division,
+                employeePosition: currentUser.position,
+                date: clockInTime.toISOString().split('T')[0],
+                clockIn: attendanceData.clockIn,
+                clockOut: null,
+                adminNotes: null,
+                lastModified: new Date(),
+                modifiedBy: null
+            };
+            
+            attendanceDatabase.unshift(attendanceRecord);
+            
             // Update stats
             updateStats();
+            
+            // Update admin stats if admin dashboard is visible
+            if (!document.getElementById('adminDashboard').classList.contains('hidden')) {
+                updateAdminStats();
+            }
         }
 
         // Update last attendance record
@@ -1870,8 +2376,25 @@
                 cells[3].innerHTML = '<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Hadir</span>';
             }
             
+            // Update admin attendance database
+            const currentRecord = attendanceDatabase.find(record => 
+                record.employeeName === currentUser.name && 
+                record.date === clockInTime.toISOString().split('T')[0] &&
+                !record.clockOut
+            );
+            
+            if (currentRecord) {
+                currentRecord.clockOut = attendanceData.clockOut;
+                currentRecord.lastModified = new Date();
+            }
+            
             // Update stats
             updateStats();
+            
+            // Update admin stats if admin dashboard is visible
+            if (!document.getElementById('adminDashboard').classList.contains('hidden')) {
+                updateAdminStats();
+            }
         }
 
         // Update statistics
@@ -1944,10 +2467,37 @@
             
             if (role === 'admin') {
                 document.getElementById('adminDashboard').classList.remove('hidden');
+                updateAdminStats();
             } else {
                 document.getElementById('userDashboard').classList.remove('hidden');
                 document.getElementById('userName').textContent = currentUser.name;
             }
+        }
+
+        // Update admin statistics with real data
+        function updateAdminStats() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Total employees
+            const totalEmployees = Object.keys(employeeDatabase).length;
+            document.getElementById('totalEmployees').textContent = totalEmployees;
+            
+            // Today's attendance data
+            const todayAttendance = attendanceDatabase.filter(record => record.date === today);
+            
+            // Present today (has clock in)
+            const presentToday = todayAttendance.length;
+            document.getElementById('presentToday').textContent = presentToday;
+            
+            // Late today (has clock in and is late)
+            const lateToday = todayAttendance.filter(record => 
+                record.clockIn && record.clockIn.isLate
+            ).length;
+            document.getElementById('lateToday').textContent = lateToday;
+            
+            // Absent today (total employees - present today)
+            const absentToday = totalEmployees - presentToday;
+            document.getElementById('absentToday').textContent = absentToday;
         }
 
         // Show tab function
@@ -2363,12 +2913,22 @@
             // Hide all admin tabs
             document.getElementById('newsTab').classList.add('hidden');
             document.getElementById('employeesTab').classList.add('hidden');
+            document.getElementById('attendanceTab').classList.add('hidden');
             document.getElementById('brandingTab').classList.add('hidden');
             document.getElementById('reportsTab').classList.add('hidden');
             document.getElementById('settingsTab').classList.add('hidden');
             
             // Show selected tab
             document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            
+            // Load data for specific tabs
+            if (tabName === 'attendance') {
+                loadAttendanceHistory();
+                setDefaultDateFilter();
+            }
+            
+            // Update stats when switching tabs
+            updateAdminStats();
             
             // Update tab buttons
             document.querySelectorAll('.admin-tab-btn').forEach(btn => {
@@ -2379,6 +2939,406 @@
             document.querySelector(`[data-tab="${tabName}"]`).classList.remove('border-transparent', 'text-gray-500');
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('border-purple-500', 'text-purple-600');
         }
+
+        // Attendance Management Functions
+        function setDefaultDateFilter() {
+            const today = new Date();
+            const dateFilter = document.getElementById('attendanceDateFilter');
+            if (dateFilter) {
+                dateFilter.value = today.toISOString().split('T')[0];
+            }
+        }
+
+        function loadAttendanceHistory() {
+            const tbody = document.getElementById('attendanceHistoryTableBody');
+            if (!tbody) return;
+            
+            // Clear existing data
+            tbody.innerHTML = '';
+            
+            if (attendanceDatabase.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="noAttendanceDataRow">
+                        <td colspan="7" class="py-8 px-4 text-center text-gray-500">
+                            <i class="fas fa-calendar-times text-4xl mb-2"></i>
+                            <p>Belum ada data absensi</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sortedData = [...attendanceDatabase].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedData.forEach(record => {
+                const row = createAttendanceRow(record);
+                tbody.appendChild(row);
+            });
+            
+            // Update filter summary
+            updateFilterSummary(attendanceDatabase.length, attendanceDatabase.length);
+        }
+
+        function createAttendanceRow(record) {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-100 hover:bg-gray-50 cursor-pointer';
+            
+            const clockInTime = record.clockIn ? record.clockIn.time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+            const clockOutTime = record.clockOut ? record.clockOut.time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+            
+            // Determine status
+            let status = '';
+            let statusClass = '';
+            
+            if (!record.clockOut) {
+                status = 'Clock In';
+                statusClass = 'bg-blue-100 text-blue-800';
+            } else if (record.clockIn.isLate) {
+                status = 'Terlambat';
+                statusClass = 'bg-yellow-100 text-yellow-800';
+            } else {
+                status = 'Hadir';
+                statusClass = 'bg-green-100 text-green-800';
+            }
+            
+            // Location status
+            const locationStatus = (record.clockIn.withinRadius && (!record.clockOut || record.clockOut.withinRadius)) ? 
+                'Dalam Radius' : 'Ada di Luar Radius';
+            const locationClass = (record.clockIn.withinRadius && (!record.clockOut || record.clockOut.withinRadius)) ? 
+                'text-green-600' : 'text-yellow-600';
+            
+            row.innerHTML = `
+                <td class="py-3 px-4">
+                    <div class="font-medium text-gray-800">${record.employeeName}</div>
+                    <div class="text-sm text-gray-500">${record.employeePosition}</div>
+                </td>
+                <td class="py-3 px-4">${new Date(record.date).toLocaleDateString('id-ID')}</td>
+                <td class="py-3 px-4">${clockInTime}</td>
+                <td class="py-3 px-4">${clockOutTime}</td>
+                <td class="py-3 px-4">
+                    <span class="${statusClass} px-2 py-1 rounded-full text-sm">${status}</span>
+                </td>
+                <td class="py-3 px-4">
+                    <span class="text-sm ${locationClass}">${locationStatus}</span>
+                </td>
+                <td class="py-3 px-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewAttendanceDetail(${record.id})" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="editAttendanceRecord(${record.id})" class="text-purple-600 hover:text-purple-800" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteAttendanceRecord(${record.id})" class="text-red-600 hover:text-red-800" title="Hapus">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            return row;
+        }
+
+        function applyAttendanceFilter() {
+            const nameFilter = document.getElementById('attendanceNameFilter').value.toLowerCase();
+            const periodFilter = document.getElementById('attendancePeriodFilter').value;
+            const dateFilter = document.getElementById('attendanceDateFilter').value;
+            
+            if (!dateFilter) {
+                alert('Silakan pilih tanggal untuk filter!');
+                return;
+            }
+            
+            const filterDate = new Date(dateFilter);
+            let filteredData = [...attendanceDatabase];
+            
+            // Filter by name
+            if (nameFilter) {
+                filteredData = filteredData.filter(record => 
+                    record.employeeName.toLowerCase().includes(nameFilter) ||
+                    record.employeeEmail.toLowerCase().includes(nameFilter) ||
+                    record.employeePosition.toLowerCase().includes(nameFilter)
+                );
+            }
+            
+            // Filter by period
+            filteredData = filteredData.filter(record => {
+                const recordDate = new Date(record.date);
+                
+                switch (periodFilter) {
+                    case 'daily':
+                        return recordDate.toDateString() === filterDate.toDateString();
+                    
+                    case 'weekly':
+                        const weekStart = new Date(filterDate);
+                        weekStart.setDate(filterDate.getDate() - filterDate.getDay());
+                        const weekEnd = new Date(weekStart);
+                        weekEnd.setDate(weekStart.getDate() + 6);
+                        return recordDate >= weekStart && recordDate <= weekEnd;
+                    
+                    case 'monthly':
+                        return recordDate.getMonth() === filterDate.getMonth() && 
+                               recordDate.getFullYear() === filterDate.getFullYear();
+                    
+                    default:
+                        return true;
+                }
+            });
+            
+            // Update table
+            const tbody = document.getElementById('attendanceHistoryTableBody');
+            tbody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-8 px-4 text-center text-gray-500">
+                            <i class="fas fa-search text-4xl mb-2"></i>
+                            <p>Tidak ada data yang sesuai dengan filter</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                // Sort by date (newest first)
+                const sortedData = filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                sortedData.forEach(record => {
+                    const row = createAttendanceRow(record);
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // Update filter summary
+            updateFilterSummary(filteredData.length, attendanceDatabase.length);
+        }
+
+        function resetAttendanceFilter() {
+            document.getElementById('attendanceNameFilter').value = '';
+            document.getElementById('attendancePeriodFilter').value = 'daily';
+            setDefaultDateFilter();
+            
+            // Hide filter summary
+            document.getElementById('attendanceFilterSummary').classList.add('hidden');
+            
+            // Reload all data
+            loadAttendanceHistory();
+        }
+
+        function updateFilterSummary(filteredCount, totalCount) {
+            const summary = document.getElementById('attendanceFilterSummary');
+            const summaryText = document.getElementById('filterSummaryText');
+            const resultCount = document.getElementById('filterResultCount');
+            
+            if (filteredCount < totalCount) {
+                const nameFilter = document.getElementById('attendanceNameFilter').value;
+                const periodFilter = document.getElementById('attendancePeriodFilter').value;
+                const dateFilter = document.getElementById('attendanceDateFilter').value;
+                
+                let filterText = `Filter aktif: ${periodFilter === 'daily' ? 'Harian' : periodFilter === 'weekly' ? 'Mingguan' : 'Bulanan'}`;
+                if (dateFilter) filterText += ` (${new Date(dateFilter).toLocaleDateString('id-ID')})`;
+                if (nameFilter) filterText += `, Nama: "${nameFilter}"`;
+                
+                summaryText.textContent = filterText;
+                resultCount.textContent = `${filteredCount} dari ${totalCount} record`;
+                summary.classList.remove('hidden');
+            } else {
+                summary.classList.add('hidden');
+            }
+        }
+
+        function viewAttendanceDetail(attendanceId) {
+            const record = attendanceDatabase.find(r => r.id === attendanceId);
+            if (!record) return;
+            
+            // Convert to format expected by showAttendanceDetail
+            const attendanceData = {
+                clockIn: record.clockIn,
+                clockOut: record.clockOut
+            };
+            
+            showAttendanceDetail(attendanceData);
+        }
+
+        function editAttendanceRecord(attendanceId) {
+            const record = attendanceDatabase.find(r => r.id === attendanceId);
+            if (!record) return;
+            
+            // Populate edit form
+            document.getElementById('editAttendanceId').value = record.id;
+            document.getElementById('editEmployeeName').value = record.employeeName;
+            document.getElementById('editEmployeeEmail').value = record.employeeEmail;
+            document.getElementById('editEmployeeDivision').value = record.employeeDivision;
+            document.getElementById('editEmployeePosition').value = record.employeePosition;
+            
+            // Clock In data
+            if (record.clockIn) {
+                const clockInTime = new Date(record.clockIn.time);
+                document.getElementById('editClockInTime').value = clockInTime.toISOString().slice(0, 16);
+                document.getElementById('editDutyAs').value = record.clockIn.dutyAs || '';
+                document.getElementById('editWorkType').value = record.clockIn.workType || '';
+                document.getElementById('editLocationIn').value = `${record.clockIn.location.lat}, ${record.clockIn.location.lng}`;
+                document.getElementById('editRadiusStatusIn').value = record.clockIn.withinRadius.toString();
+                document.getElementById('editOutsideReasonIn').value = record.clockIn.outsideReason || '';
+                document.getElementById('editLateStatus').value = record.clockIn.isLate.toString();
+                document.getElementById('editLateReason').value = record.clockIn.lateReason || '';
+                document.getElementById('editPhotoIn').src = record.clockIn.photo || '';
+            }
+            
+            // Clock Out data
+            if (record.clockOut) {
+                const clockOutTime = new Date(record.clockOut.time);
+                document.getElementById('editClockOutTime').value = clockOutTime.toISOString().slice(0, 16);
+                document.getElementById('editLocationOut').value = `${record.clockOut.location.lat}, ${record.clockOut.location.lng}`;
+                document.getElementById('editRadiusStatusOut').value = record.clockOut.withinRadius.toString();
+                document.getElementById('editOutsideReasonOut').value = record.clockOut.outsideReason || '';
+                document.getElementById('editWorkReport').value = record.clockOut.workReport || '';
+                
+                if (record.clockOut.workPhoto) {
+                    document.getElementById('editPhotoOut').src = record.clockOut.workPhoto;
+                    document.getElementById('editPhotoOut').classList.remove('hidden');
+                    document.getElementById('editNoPhotoOut').classList.add('hidden');
+                } else {
+                    document.getElementById('editPhotoOut').classList.add('hidden');
+                    document.getElementById('editNoPhotoOut').classList.remove('hidden');
+                }
+                
+                document.getElementById('editClockOutSection').classList.remove('hidden');
+            } else {
+                document.getElementById('editClockOutSection').classList.add('hidden');
+            }
+            
+            // Admin notes
+            document.getElementById('editAdminNotes').value = record.adminNotes || '';
+            
+            // Show modal
+            document.getElementById('adminAttendanceEditModal').classList.remove('hidden');
+            
+            // Setup conditional field visibility
+            setupEditFormConditionals();
+        }
+
+        function setupEditFormConditionals() {
+            // Handle radius status changes
+            document.getElementById('editRadiusStatusIn').addEventListener('change', function() {
+                const outsideReasonDiv = document.getElementById('editOutsideReasonInDiv');
+                if (this.value === 'false') {
+                    outsideReasonDiv.classList.remove('hidden');
+                } else {
+                    outsideReasonDiv.classList.add('hidden');
+                    document.getElementById('editOutsideReasonIn').value = '';
+                }
+            });
+            
+            document.getElementById('editRadiusStatusOut').addEventListener('change', function() {
+                const outsideReasonDiv = document.getElementById('editOutsideReasonOutDiv');
+                if (this.value === 'false') {
+                    outsideReasonDiv.classList.remove('hidden');
+                } else {
+                    outsideReasonDiv.classList.add('hidden');
+                    document.getElementById('editOutsideReasonOut').value = '';
+                }
+            });
+            
+            // Handle late status changes
+            document.getElementById('editLateStatus').addEventListener('change', function() {
+                const lateReasonDiv = document.getElementById('editLateReasonDiv');
+                if (this.value === 'true') {
+                    lateReasonDiv.classList.remove('hidden');
+                } else {
+                    lateReasonDiv.classList.add('hidden');
+                    document.getElementById('editLateReason').value = '';
+                }
+            });
+            
+            // Trigger initial state
+            document.getElementById('editRadiusStatusIn').dispatchEvent(new Event('change'));
+            document.getElementById('editRadiusStatusOut').dispatchEvent(new Event('change'));
+            document.getElementById('editLateStatus').dispatchEvent(new Event('change'));
+        }
+
+        function hideAdminAttendanceEdit() {
+            document.getElementById('adminAttendanceEditModal').classList.add('hidden');
+        }
+
+        function deleteAttendanceRecord(attendanceId) {
+            const record = attendanceDatabase.find(r => r.id === attendanceId);
+            if (!record) return;
+            
+            if (confirm(`Apakah Anda yakin ingin menghapus data absensi ${record.employeeName} pada ${new Date(record.date).toLocaleDateString('id-ID')}?`)) {
+                const index = attendanceDatabase.findIndex(r => r.id === attendanceId);
+                if (index > -1) {
+                    attendanceDatabase.splice(index, 1);
+                    loadAttendanceHistory();
+                    updateAdminStats();
+                    alert('Data absensi berhasil dihapus!');
+                }
+            }
+        }
+
+        // Admin attendance edit form handler
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('adminAttendanceEditForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const attendanceId = parseInt(document.getElementById('editAttendanceId').value);
+                const record = attendanceDatabase.find(r => r.id === attendanceId);
+                
+                if (!record) {
+                    alert('Data tidak ditemukan!');
+                    return;
+                }
+                
+                try {
+                    // Update clock in data
+                    const clockInTime = new Date(document.getElementById('editClockInTime').value);
+                    const locationInParts = document.getElementById('editLocationIn').value.split(',');
+                    
+                    record.clockIn.time = clockInTime;
+                    record.clockIn.dutyAs = document.getElementById('editDutyAs').value;
+                    record.clockIn.workType = document.getElementById('editWorkType').value;
+                    record.clockIn.location = {
+                        lat: parseFloat(locationInParts[0].trim()),
+                        lng: parseFloat(locationInParts[1].trim())
+                    };
+                    record.clockIn.withinRadius = document.getElementById('editRadiusStatusIn').value === 'true';
+                    record.clockIn.outsideReason = document.getElementById('editOutsideReasonIn').value || null;
+                    record.clockIn.isLate = document.getElementById('editLateStatus').value === 'true';
+                    record.clockIn.lateReason = document.getElementById('editLateReason').value || null;
+                    
+                    // Update clock out data if exists
+                    const clockOutTime = document.getElementById('editClockOutTime').value;
+                    if (clockOutTime && record.clockOut) {
+                        const locationOutParts = document.getElementById('editLocationOut').value.split(',');
+                        
+                        record.clockOut.time = new Date(clockOutTime);
+                        record.clockOut.location = {
+                            lat: parseFloat(locationOutParts[0].trim()),
+                            lng: parseFloat(locationOutParts[1].trim())
+                        };
+                        record.clockOut.withinRadius = document.getElementById('editRadiusStatusOut').value === 'true';
+                        record.clockOut.outsideReason = document.getElementById('editOutsideReasonOut').value || null;
+                        record.clockOut.workReport = document.getElementById('editWorkReport').value;
+                    }
+                    
+                    // Update admin notes and metadata
+                    record.adminNotes = document.getElementById('editAdminNotes').value || null;
+                    record.lastModified = new Date();
+                    record.modifiedBy = currentUser ? currentUser.name : 'Admin';
+                    
+                    // Reload table
+                    loadAttendanceHistory();
+                    updateAdminStats();
+                    hideAdminAttendanceEdit();
+                    
+                    alert('Data absensi berhasil diupdate!');
+                    
+                } catch (error) {
+                    alert('Terjadi kesalahan saat menyimpan data. Periksa format input Anda.');
+                    console.error('Error updating attendance:', error);
+                }
+            });
+        });
 
         // Show attendance detail
         function showAttendanceDetail(data) {
@@ -2810,5 +3770,5 @@
             document.getElementById('profilePhotoPreview').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236B7280'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9772325702fff8d2',t:'MTc1NjUzNDk3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'977263e852af5fe7',t:'MTc1NjUzNzAwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
