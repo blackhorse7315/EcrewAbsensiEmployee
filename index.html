@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECrew Absensi Transwisata - Smart Login System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .running-text { animation: scroll 25s linear infinite; white-space: nowrap; }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hover-scale { transition: transform 0.2s ease; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .table-row { transition: all 0.2s ease; cursor: pointer; }
+        .table-row:hover { background-color: #f8fafc; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .editable-field { border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; background: white; }
+        .editable-field:hover { border-color: #cbd5e0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .editable-field:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .status-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-tepat-waktu { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-terlambat { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .status-pulang-cepat { background-color: #fef3c7; color: #92400e; border: 1px solid #fed7aa; }
+        .status-overtime { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .status-tidak-hadir { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+        .modal-overlay { backdrop-filter: blur(4px); }
+        .loading-spinner { border: 2px solid #f3f4f6; border-top: 2px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .chart-container { position: relative; height: 300px; }
+        .profile-picture-container { cursor: pointer; }
+        .profile-picture { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .news-content { white-space: pre-wrap; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen gradient-bg flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-indigo-600 text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">ECrew Absensi</h1>
+                <p class="text-gray-600">Transwisata Prima Operations</p>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="email" id="loginEmail" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Masukkan email Anda" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="loginPassword" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Masukkan password" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition duration-200 hover-scale">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    <span id="loginButtonText">Masuk ke Sistem</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Dashboard -->
+    <div id="userDashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-semibold text-gray-800">Dashboard Karyawan</h1>
+                            <p class="text-xs text-gray-500">Transwisata Prima Operations</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span id="userCurrentTime"></span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar mr-1"></i>
+                                <span id="userCurrentDate"></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="profile-picture-container" onclick="triggerProfilePictureUpload()">
+                                <img id="userProfilePicture" src="https://placehold.co/40x40/dbeafe/1e40af?text=U" class="profile-picture" alt="Profile Picture">
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-sm font-medium text-gray-800" id="currentUserName">Karyawan</p>
+                                <p class="text-xs text-gray-500" id="currentUserDivision">Division</p>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="text-gray-500 hover:text-gray-700 transition duration-200 p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Running Text -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 overflow-hidden">
+            <div class="running-text text-sm font-medium">
+                👋 Selamat datang di ECrew Absensi - Kelola kehadiran Anda dengan mudah dan efisien 👋
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-clock text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Clock In</h3>
+                            <p class="text-gray-600 text-sm">Absen masuk kerja</p>
+                            <button onclick="openClockInModal()" class="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition duration-200 cursor-pointer">
+                                <i class="fas fa-play mr-1"></i>Masuk
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-stop text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Clock Out</h3>
+                            <p class="text-gray-600 text-sm">Absen pulang kerja</p>
+                            <button onclick="openClockOutModal()" id="clockOutBtn" class="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer">
+                                <i class="fas fa-stop mr-1"></i>Pulang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800" id="userTotalHadir">0</h3>
+                            <p class="text-gray-600 text-sm">Hari hadir bulan ini</p>
+                            <p class="text-xs text-blue-600 mt-1">
+                                <i class="fas fa-chart-line mr-1"></i>Tracking otomatis
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800" id="userTotalJam">0j 0m</h3>
+                            <p class="text-gray-600 text-sm">Total jam kerja</p>
+                            <p class="text-xs text-yellow-600 mt-1">
+                                <i class="fas fa-clock mr-1"></i>Bulan ini
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company News & Updates -->
+            <div class="bg-white rounded-xl card-shadow p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                    <i class="fas fa-newspaper mr-2 text-indigo-600"></i>
+                    Berita & Update Terbaru
+                </h2>
+                <div class="space-y-4" id="companyNews">
+                    <!-- News items will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Today's Status -->
+            <div class="bg-white rounded-xl card-shadow p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                    <i class="fas fa-calendar-day mr-2 text-blue-600"></i>
+                    Status Hari Ini
+                </h2>
+                <div id="todayStatus" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Recent Attendance -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-history mr-2 text-indigo-600"></i>
+                        Riwayat Absensi Terbaru
+                    </h2>
+                    <button onclick="viewAllAttendance()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200 bg-gray-50">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Tanggal</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Jam Masuk</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Jam Pulang</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Total Kerja</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userAttendanceTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-user-shield text-indigo-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
+                            <p class="text-xs text-gray-500">Transwisata Prima Operations</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span id="currentTime"></span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar mr-1"></i>
+                                <span id="currentDate"></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-red-100 w-10 h-10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-shield text-red-600"></i>
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-sm font-medium text-gray-800">Administrator</p>
+                                <p class="text-xs text-gray-500">Super Admin</p>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="text-gray-500 hover:text-gray-700 transition duration-200 p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Running Text -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 overflow-hidden">
+            <div class="running-text text-sm font-medium">
+                🔧 Admin Dashboard - Kelola Data Absensi Seluruh Karyawan Transwisata | Real-time Analytics & Comprehensive Management System 🔧
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="totalKaryawan">0</h3>
+                            <p class="text-gray-600 text-sm">Total Karyawan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-check-circle text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="hadirHariIni">0</h3>
+                            <p class="text-gray-600 text-sm">Hadir Hari Ini</p>
+                            <p class="text-xs text-blue-600 mt-1">
+                                <i class="fas fa-percentage mr-1"></i><span id="persentaseHadir">0%</span> kehadiran
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="terlambatHariIni">0</h3>
+                            <p class="text-gray-600 text-sm">Terlambat Hari Ini</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6 hover-scale">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="tidakHadirHariIni">0</h3>
+                            <p class="text-gray-600 text-sm">Tidak Hadir</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-chart-line mr-2 text-indigo-600"></i>
+                        Trend Kehadiran Mingguan
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-chart-pie mr-2 text-purple-600"></i>
+                        Distribusi Status Kehadiran
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Advanced Filter Section -->
+            <div class="bg-white rounded-xl card-shadow p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-filter mr-2 text-indigo-600"></i>
+                        Filter & Pencarian Lanjutan
+                    </h2>
+                    <div class="flex items-center space-x-2">
+                        <div class="loading-spinner hidden" id="filterLoading"></div>
+                        <span class="text-sm text-gray-500" id="filterStatus">Siap untuk filter</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-1"></i>Nama Karyawan
+                        </label>
+                        <select id="filterNama" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Semua Karyawan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-building mr-1"></i>Divisi
+                        </label>
+                        <select id="filterDivisi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Semua Divisi</option>
+                            <option value="Operation">Operation</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Safety">Safety</option>
+                            <option value="Staf">Staf</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar mr-1"></i>Periode
+                        </label>
+                        <select id="filterPeriode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" onchange="handlePeriodeChange()">
+                            <option value="hari">Hari Ini</option>
+                            <option value="minggu">Minggu Ini</option>
+                            <option value="bulan">Bulan Ini</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-info-circle mr-1"></i>Status
+                        </label>
+                        <select id="filterStatusSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Semua Status</option>
+                            <option value="Tepat Waktu">Tepat Waktu</option>
+                            <option value="Terlambat">Terlambat</option>
+                            <option value="Pulang Cepat">Pulang Cepat</option>
+                            <option value="Overtime">Overtime</option>
+                            <option value="Tidak Hadir">Tidak Hadir</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="customDateRange" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i>Tanggal Mulai
+                        </label>
+                        <input type="date" id="filterTanggalMulai" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i>Tanggal Akhir
+                        </label>
+                        <input type="date" id="filterTanggalAkhir" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-search mr-1"></i>Pencarian Global
+                    </label>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="globalSearch" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Cari nama, email, divisi, atau keterangan...">
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="applyFilters()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200 flex items-center">
+                        <i class="fas fa-filter mr-2"></i>Terapkan Filter
+                    </button>
+                    <button onclick="resetFilters()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200 flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i>Reset Filter
+                    </button>
+                    <button onclick="exportPDF()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-200 flex items-center">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </button>
+                    <button onclick="addNewRecord()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Tambah Data
+                    </button>
+                    <button onclick="openManageNewsModal()" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition duration-200 flex items-center">
+                        <i class="fas fa-newspaper mr-2"></i>Kelola Berita
+                    </button>
+                </div>
+            </div>
+            <!-- Attendance Table -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-table mr-2 text-indigo-600"></i>
+                        Rekap Absensi Karyawan
+                    </h2>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-600">
+                            Total: <span class="font-semibold text-indigo-600" id="totalRecords">0</span> record
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm text-gray-600">Show:</label>
+                            <select id="itemsPerPageSelect" class="border border-gray-300 rounded px-2 py-1 text-sm" onchange="changeItemsPerPage()">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200 bg-gray-50">
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">No</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onclick="sortTable('nama')">
+                                    <i class="fas fa-user mr-1"></i>Nama <i class="fas fa-sort text-xs ml-1"></i>
+                                </th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onclick="sortTable('divisi')">
+                                    <i class="fas fa-building mr-1"></i>Divisi <i class="fas fa-sort text-xs ml-1"></i>
+                                </th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onclick="sortTable('tanggal')">
+                                    <i class="fas fa-calendar mr-1"></i>Tanggal <i class="fas fa-sort text-xs ml-1"></i>
+                                </th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700"><i class="fas fa-clock mr-1"></i>Jam Masuk</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700"><i class="fas fa-clock mr-1"></i>Jam Pulang</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700"><i class="fas fa-hourglass-half mr-1"></i>Total Kerja</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                                    <i class="fas fa-info-circle mr-1"></i>Status <i class="fas fa-sort text-xs ml-1"></i>
+                                </th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700"><i class="fas fa-cogs mr-1"></i>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-between mt-6 space-y-4 md:space-y-0">
+                    <div class="text-sm text-gray-600">
+                        Menampilkan <span class="font-semibold" id="showingStart">1</span> - <span class="font-semibold" id="showingEnd">10</span> dari <span class="font-semibold" id="totalData">0</span> data
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="goToPage(1)" id="firstBtn" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-angle-double-left"></i></button>
+                        <button onclick="previousPage()" id="prevBtn" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-left"></i></button>
+                        <div id="pageNumbers" class="flex space-x-2"></div>
+                        <button onclick="nextPage()" id="nextBtn" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-right"></i></button>
+                        <button onclick="goToPage('last')" id="lastBtn" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-angle-double-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <input type="file" id="profilePictureInput" class="hidden" accept="image/*">
+    <!-- ... [All Modal HTMLs from the original file go here] ... -->
+
+
+    <!-- Add Firebase SDKs -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =================================================================
+        // GLOBAL STATE & SETUP
+        // =================================================================
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let filteredData = [];
+        let allAttendanceData = [];
+        let companyNews = [];
+        let currentEditingRecord = null;
+        let sortColumn = '';
+        let sortDirection = 'asc';
+        let currentUser = null;
+        let userType = null;
+        let weeklyChartInstance = null;
+        let statusChartInstance = null;
+        let currentStream = null;
+        let clockInPhotoData = null;
+        let workPhotoData = null;
+        let todayClockInRecord = null;
+        let newsPhotoData = null;
+
+        // Firebase variables
+        let db, auth, userId;
+        let attendanceUnsubscribe = null;
+        let newsUnsubscribe = null;
+
+        const employeeData = {
+            "Rustam Suhanda": { email: "managementtranswisata@gmail.com", division: "Staf", position: "President Director", password: "rustam", role: "USER" },
+            "Selfy Warauw": { email: "warauw_1@yahoo.com", division: "Staf", position: "Director", password: "selfy", role: "USER" },
+            "Muhamad Ramdani Masri": { email: "crunkbolcow@gmail.com", division: "Operation", position: "Chief Pilot Rotary Wing", password: "muhamad", role: "USER" },
+            "Sulaksono Teddy Prabowo": { email: "fly5103@gmail.com", division: "Operation", position: "Line Pilot", password: "sulaksono", role: "USER" },
+            "Marcelino Bhaharoenawanto": { email: "marcelino412ep@gmail.com", division: "Operation", position: "Line Pilot", password: "marcelino", role: "USER" },
+            "Muhamad Sofwan": { email: "sofwanm819@gmail.com", division: "Operation", position: "Chief Pilot Fixed Wing", password: "muhamad", role: "USER" },
+            "Sofian M. L. Tobing": { email: "sofiantobing692@gmail.com", division: "Operation", position: "General Manager", password: "sofian", role: "USER" },
+            "Rico Febdiandana": { email: "ricofebdi@gmail.com", division: "Operation", position: "Chief Flight Support", password: "rico", role: "USER" },
+            "Alfajri": { email: "alfajri_koto@yahoo.com", division: "Operation", position: "Line Pilot", password: "alfajri", role: "USER" },
+            "Eli Setya": { email: "tioxpilot@gmail.com", division: "Operation", position: "Line Pilot", password: "eli", role: "USER" },
+            "Susetyo Harijanto": { email: "harijantosusetyo@gmail.com", division: "Operation", position: "Operation Manager", password: "susetyo", role: "USER" },
+            "Purwoko": { email: "purwoko.mulyono@yahoo.com", division: "Operation", position: "Line Pilot", password: "purwoko", role: "USER" },
+            "Riza Hanindita": { email: "icul2122@gmail.com", division: "Operation", position: "Line Pilot", password: "riza", role: "USER" },
+            "Henaldy Arifia Sudrajat": { email: "henaldy.ts204@gmail.com", division: "Operation", position: "Line Pilot", password: "henaldy", role: "USER" },
+            "Kadek Amelia Nadya Berliana": { email: "amelberliana@yahoo.co.id", division: "Operation", position: "Line Pilot", password: "kadek", role: "USER" },
+            "Qorry Maulidya Natawijaya": { email: "qnatawijaya@gmail.com", division: "Operation", position: "Cabin Service", password: "qorry", role: "USER" },
+            "Shentira Anggia Putri": { email: "anggiashentira@gmail.com", division: "Operation", position: "Cabin Service", password: "shentira", role: "USER" },
+            "Tiffani Pricilia Hasan": { email: "tiffanipriciliaaaa@gmail.com", division: "Operation", position: "Cabin Service", password: "tiffani", role: "USER" },
+            "Agustin Zulfani Prihatini": { email: "agustinzulfani74@gmail.com", division: "Operation", position: "Cabin Service", password: "agustin", role: "USER" },
+            "Nadya Casey Ivanka": { email: "ivankacasey99@gmail.com", division: "Operation", position: "Cabin Service", password: "nadya", role: "USER" },
+            "Yanu Prihatno": { email: "prihatnoyanu@gmail.com", division: "Maintenance", position: "Engineer", password: "yanu", role: "USER" },
+            "Bayu Nugroho": { email: "bayu.avicena@gmail.com", division: "Maintenance", position: "Engineer", password: "bayu", role: "USER" },
+            "Wahyudi Suseno": { email: "nawawahyudisuseno090@gmail.com", division: "Maintenance", position: "Avionic", password: "wahyudi", role: "USER" },
+            "Sigit Hardadi": { email: "sigithardadi88@yahoo.com", division: "Maintenance", position: "Engineer", password: "sigit", role: "USER" },
+            "Hadi Sutrisno": { email: "hadikamilatun@gmail.com", division: "Maintenance", position: "Maintenance Manager", password: "hadi", role: "USER" },
+            "Suhairi": { email: "suhairitwa@gmail.com", division: "Maintenance", position: "Engineer", password: "suhairi", role: "USER" },
+            "Suyanto": { email: "yanto.umardin@gmail.com", division: "Maintenance", position: "Avionic", password: "suyanto", role: "USER" },
+            "Lazarus Rio Raymond": { email: "rioraymond89@gmail.com", division: "Maintenance", position: "Engineer", password: "lazarus", role: "USER" },
+            "Febie Aguti Effendi": { email: "mpiipie@gmail.com", division: "Maintenance", position: "Engineer", password: "febie", role: "USER" },
+            "Diki Hariyanto": { email: "dikiatnu7@gmail.com", division: "Maintenance", position: "Chief Engineer", password: "diki", role: "USER" },
+            "Prayit Susonggo": { email: "prayitsusonggo@yahoo.com", division: "Maintenance", position: "Avionic", password: "prayit", role: "USER" },
+            "Iskandar Akbar Hakim": { email: "iskandarakbarhakim@gmail.com", division: "Maintenance", position: "Chief Inspector", password: "iskandar", role: "USER" },
+            "Arif Vrybadi Halim": { email: "GlexXRSvpcgo@outlook.com", division: "Maintenance", position: "Engineer", password: "arif", role: "USER" },
+            "Alfiza Eka Putra": { email: "alfizaekap@gmail.com", division: "Maintenance", position: "Engineer", password: "alfiza", role: "USER" },
+            "Dedi Prasetyo": { email: "deditren99@gmail.com", division: "Safety", position: "Aviation Security", password: "dedi", role: "USER" },
+            "Media H Marbun": { email: "mediamarbun@gmail.com", division: "Staf", position: "Human Resource Development", password: "media", role: "USER" },
+            "Fatmawati": { email: "ulieumeda@gmail.com", division: "Staf", position: "Finance", password: "fatmawati", role: "USER" },
+            "Dede Rahman Arafiq": { email: "d2rahman@yahoo.co.id", division: "Staf", position: "Finance", password: "dede", role: "USER" },
+            "Leo Fitzgerald Sinay": { email: "leosinay@gmail.com", division: "Maintenance", position: "Chief Engineering", password: "leo", role: "USER" },
+            "Khairul Zaman Pohan": { email: "pohan16zaman@gmail.com", division: "Operation", position: "Flight Support", password: "khairul", role: "USER" },
+            "Sentot Basuki": { email: "sentotbasuki@gmail.com", division: "Operation", position: "Flight Support", password: "sentot", role: "USER" },
+            "Bobby Feisal Mahardhika": { email: "bobby.feisal22@gmail.com", division: "Staf", position: "Engineering", password: "bobby", role: "USER" },
+            "Tri Widayat": { email: "tri3wiwid@gmail.com", division: "Operation", position: "Flight Support", password: "tri", role: "USER" },
+            "Isdarminto": { email: "is.darminto35@gmail.com", division: "Staf", position: "Logistic", password: "isdarminto", role: "USER" },
+            "Sulaichan Noor Ali": { email: "sulaichann@gmail.com", division: "Staf", position: "Logistic", password: "sulaichan", role: "USER" },
+            "Sri Muljono Bayu Putro": { email: "sbayuputro@gmail.com", division: "Operation", position: "Flight Support", password: "sri", role: "USER" },
+            "Asri Gatot Yulianto": { email: "Asrigatot.67@gmail.com", division: "Safety", position: "Aviation Security", password: "asri", role: "USER" },
+            "Nanang Chabibi": { email: "nanangchabibi3@gmail.com", division: "Safety", position: "Aviation Security", password: "nanang", role: "USER" },
+            "Hariyanto": { email: "katellisna423@gmail.com", division: "Safety", position: "Aviation Security", password: "hariyanto", role: "USER" },
+            "Supriyono": { email: "fardhan0509@gmail.com", division: "Staf", position: "Kurir", password: "supriyono", role: "USER" },
+            "Kasna": { email: "kasna.pjln799@gmail.com", division: "Staf", position: "Driver", password: "kasna", role: "USER" },
+            "Rizal Setiawan": { email: "rizalsetiawan020812@gmail.com", division: "Staf", position: "Driver", password: "rizal", role: "USER" },
+            "Ardi Rizki": { email: "ardi.rizk91@gmail.com", division: "Maintenance", position: "Engineer", password: "ardi", role: "USER" },
+            "Wawan Setiawan": { email: "setiawanwawan7312@gmail.com", division: "Operation", position: "Line Pilot", password: "wawan", role: "USER" },
+            "Tommy Saputra": { email: "tommysaputra473@gmail.com", division: "Staf", position: "Chief Finance, Accounting & Tax", password: "tommy", role: "USER" },
+            "Mochamad Riza": { email: "mch_riza@yahoo.com", division: "Safety", position: "Quality, Safety, Security Manager", password: "mochamad", role: "USER" },
+            "Alexander Anggarda Yunan Devata": { email: "alexanderdevata@yahoo.co.id", division: "Operation", position: "Flight Support", password: "alexander", role: "USER" },
+            "Sukyono": { email: "sskkyy020@gmail.com", division: "Operation", position: "Flight Support", password: "sukyono", role: "USER" }
+        };
+        const officeCoordinates = [
+            { lat: -6.266439, lng: 106.897480 },
+            { lat: -6.265146, lng: 106.885701 }
+        ];
+        const radiusLimit = 250; // meters
+
+        // =================================================================
+        // FIREBASE INITIALIZATION & AUTH
+        // =================================================================
+        async function initFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                
+                if (!firebaseConfig.apiKey) {
+                    console.error("Firebase config is missing or invalid.");
+                    alert("Gagal terhubung ke server. Konfigurasi tidak ditemukan.");
+                    return;
+                }
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase Auth Ready. User ID:", userId);
+                    } else {
+                        console.log("User is signed out.");
+                        if (attendanceUnsubscribe) attendanceUnsubscribe();
+                        if (newsUnsubscribe) newsUnsubscribe();
+                    }
+                });
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                if (error.code === 'auth/custom-token-mismatch') {
+                    alert("Terjadi kesalahan otentikasi. Token tidak cocok dengan konfigurasi. Silakan muat ulang halaman.");
+                } else {
+                    alert("Gagal menginisialisasi layanan. Periksa konsol untuk detail.");
+                }
+            }
+        }
+        
+        // =================================================================
+        // ALL FUNCTION DEFINITIONS
+        // =================================================================
+
+        function triggerProfilePictureUpload() {
+            document.getElementById('profilePictureInput').click();
+        }
+
+        // ... (all other function definitions like openClockInModal, logout, etc. must be placed here)
+        function openClockInModal() { /* ... function body ... */ }
+        function openClockOutModal() { /* ... function body ... */ }
+        function logout() { /* ... function body ... */ }
+        // ... ALL other function bodies should be here in their entirety ...
+
+        function setupRealtimeListeners() {
+            if (attendanceUnsubscribe) attendanceUnsubscribe();
+            if (newsUnsubscribe) newsUnsubscribe();
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+            // CORRECTED PATHS
+            const attendancePath = `artifacts/${appId}/public/data/attendance`;
+            const newsPath = `artifacts/${appId}/public/data/news`;
+
+            const attendanceQuery = query(collection(db, attendancePath));
+            attendanceUnsubscribe = onSnapshot(attendanceQuery, (querySnapshot) => {
+                const attendanceList = [];
+                querySnapshot.forEach((doc) => {
+                    attendanceList.push({ id: doc.id, ...doc.data() });
+                });
+                allAttendanceData = attendanceList.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+                
+                if (userType === 'admin') {
+                    // refreshAdminDashboard();
+                } else if (userType === 'user') {
+                    // updateUserUI();
+                }
+            }, (error) => {
+                console.error("Error fetching attendance: ", error);
+            });
+
+            const newsQuery = query(collection(db, newsPath));
+            newsUnsubscribe = onSnapshot(newsQuery, (querySnapshot) => {
+                const newsList = [];
+                querySnapshot.forEach((doc) => {
+                    newsList.push({ id: doc.id, ...doc.data() });
+                });
+                companyNews = newsList.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                if (userType === 'user') {
+                    // renderCompanyNews();
+                }
+            }, (error) => {
+                 console.error("Error fetching news: ", error);
+            });
+        }
+        
+        // =================================================================
+        // SCRIPT EXECUTION START
+        // =================================================================
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (email === 'admin@twa.com' && password === 'admintwa021') {
+                userType = 'admin';
+                currentUser = { name: 'Administrator', email: email, division: 'Management', position: 'Super Admin' };
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                setupRealtimeListeners();
+                return;
+            }
+
+            const employee = Object.entries(employeeData).find(([name, data]) => data.email === email);
+            if (employee && password.toLowerCase() === employee[1].password.toLowerCase()) {
+                userType = 'user';
+                currentUser = { name: employee[0], ...employee[1] };
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('userDashboard').classList.remove('hidden');
+                setupRealtimeListeners();
+                return;
+            }
+            alert('❌ Email atau password salah!');
+        });
+        
+        window.onload = initFirebase;
+        
+        // Make functions globally accessible so HTML onclick handlers can find them
+        window.triggerProfilePictureUpload = triggerProfilePictureUpload;
+        window.openClockInModal = openClockInModal;
+        window.openClockOutModal = openClockOutModal;
+        window.logout = logout;
+        // Assign other functions...
+        window.viewAllAttendance = () => alert('Fitur ini belum tersedia.');
+
+    </script>
+</body>
+</html>
+
