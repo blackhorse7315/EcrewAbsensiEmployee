@@ -6,6 +6,8 @@
     <title>ECrew Absensi Karyawan Transwisata</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -1044,6 +1046,10 @@
                                 
                                 <button onclick="resetAttendanceFilter()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200 text-sm">
                                     <i class="fas fa-undo mr-1"></i>Reset
+                                </button>
+                                
+                                <button onclick="downloadAttendancePDF()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 text-sm">
+                                    <i class="fas fa-download mr-1"></i>Download PDF
                                 </button>
                             </div>
                         </div>
@@ -3714,6 +3720,272 @@
             }
         });
 
+        // PDF Download Functions
+        function downloadAttendancePDF() {
+            // Get current filter values
+            const nameFilter = document.getElementById('attendanceNameFilter').value.toLowerCase();
+            const periodFilter = document.getElementById('attendancePeriodFilter').value;
+            const dateFilter = document.getElementById('attendanceDateFilter').value;
+            
+            if (!dateFilter) {
+                alert('Silakan pilih tanggal untuk filter sebelum download PDF!');
+                return;
+            }
+            
+            // Apply the same filter logic as in applyAttendanceFilter
+            const filterDate = new Date(dateFilter);
+            let filteredData = [...attendanceDatabase];
+            
+            // Filter by name
+            if (nameFilter) {
+                filteredData = filteredData.filter(record => 
+                    record.employeeName.toLowerCase().includes(nameFilter) ||
+                    record.employeeEmail.toLowerCase().includes(nameFilter) ||
+                    record.employeePosition.toLowerCase().includes(nameFilter)
+                );
+            }
+            
+            // Filter by period
+            filteredData = filteredData.filter(record => {
+                const recordDate = new Date(record.date);
+                
+                switch (periodFilter) {
+                    case 'daily':
+                        return recordDate.toDateString() === filterDate.toDateString();
+                    
+                    case 'weekly':
+                        const weekStart = new Date(filterDate);
+                        weekStart.setDate(filterDate.getDate() - filterDate.getDay());
+                        const weekEnd = new Date(weekStart);
+                        weekEnd.setDate(weekStart.getDate() + 6);
+                        return recordDate >= weekStart && recordDate <= weekEnd;
+                    
+                    case 'monthly':
+                        return recordDate.getMonth() === filterDate.getMonth() && 
+                               recordDate.getFullYear() === filterDate.getFullYear();
+                    
+                    default:
+                        return true;
+                }
+            });
+            
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk di-download berdasarkan filter yang dipilih!');
+                return;
+            }
+            
+            generatePDF(filteredData, periodFilter, filterDate, nameFilter);
+        }
+        
+        function generatePDF(data, periodFilter, filterDate, nameFilter) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape', 'mm', 'a4');
+            
+            // Set font
+            doc.setFont('helvetica');
+            
+            // Title
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            const title = 'Rekap Absensi Karyawan PT. Transwisata Prima Aviation';
+            const titleWidth = doc.getTextWidth(title);
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.text(title, (pageWidth - titleWidth) / 2, 20);
+            
+            // Date range info
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            let dateRangeText = '';
+            
+            switch (periodFilter) {
+                case 'daily':
+                    dateRangeText = `Tanggal: ${formatIndonesianDate(filterDate)}`;
+                    break;
+                case 'weekly':
+                    const weekStart = new Date(filterDate);
+                    weekStart.setDate(filterDate.getDate() - filterDate.getDay());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    dateRangeText = `Periode: ${formatIndonesianDate(weekStart)} - ${formatIndonesianDate(weekEnd)}`;
+                    break;
+                case 'monthly':
+                    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    dateRangeText = `Bulan: ${monthNames[filterDate.getMonth()]} ${filterDate.getFullYear()}`;
+                    break;
+            }
+            
+            if (nameFilter) {
+                dateRangeText += ` | Filter Nama: "${nameFilter}"`;
+            }
+            
+            const dateRangeWidth = doc.getTextWidth(dateRangeText);
+            doc.text(dateRangeText, (pageWidth - dateRangeWidth) / 2, 30);
+            
+            // Generate timestamp
+            const now = new Date();
+            const generateTime = `Dibuat pada: ${formatIndonesianDateTime(now)}`;
+            const generateTimeWidth = doc.getTextWidth(generateTime);
+            doc.text(generateTime, (pageWidth - generateTimeWidth) / 2, 40);
+            
+            // Prepare table data
+            const tableData = [];
+            
+            // Sort data by date (newest first)
+            const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedData.forEach(record => {
+                const clockInTime = record.clockIn ? formatTime(record.clockIn.time) : '-';
+                const clockOutTime = record.clockOut ? formatTime(record.clockOut.time) : '-';
+                
+                // Calculate total work time
+                let totalTime = '-';
+                if (record.clockIn && record.clockOut) {
+                    const workTimeMs = new Date(record.clockOut.time).getTime() - new Date(record.clockIn.time).getTime();
+                    const hours = Math.floor(workTimeMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((workTimeMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((workTimeMs % (1000 * 60)) / 1000);
+                    totalTime = `${hours}j ${minutes}m ${seconds}d`;
+                }
+                
+                // Determine status
+                let status = '';
+                if (!record.clockOut) {
+                    status = 'Clock In';
+                } else if (record.clockIn && record.clockIn.isLate) {
+                    status = 'Terlambat';
+                } else {
+                    status = 'Hadir';
+                }
+                
+                // Work report (remarks)
+                const workReport = record.clockOut && record.clockOut.workReport ? 
+                    record.clockOut.workReport.substring(0, 50) + (record.clockOut.workReport.length > 50 ? '...' : '') : '-';
+                
+                tableData.push([
+                    formatIndonesianDate(new Date(record.date)),
+                    record.employeeDivision || '-',
+                    record.employeePosition || '-',
+                    record.clockIn ? record.clockIn.dutyAs || '-' : '-',
+                    record.clockIn ? record.clockIn.workType || '-' : '-',
+                    status,
+                    clockInTime,
+                    clockOutTime,
+                    totalTime,
+                    workReport
+                ]);
+            });
+            
+            // Table headers
+            const headers = [
+                'DATE',
+                'DIVISION',
+                'POSITION', 
+                'DUTY AS',
+                'TYPE OF WORK',
+                'STATUS ABSEN',
+                'ABSEN MASUK',
+                'ABSEN PULANG',
+                'TOTAL TIME',
+                'REMARKS PEKERJAAN'
+            ];
+            
+            // Generate table
+            doc.autoTable({
+                head: [headers],
+                body: tableData,
+                startY: 50,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                    overflow: 'linebreak',
+                    halign: 'center'
+                },
+                headStyles: {
+                    fillColor: [79, 70, 229], // Purple color
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { cellWidth: 25 }, // DATE
+                    1: { cellWidth: 25 }, // DIVISION
+                    2: { cellWidth: 30 }, // POSITION
+                    3: { cellWidth: 25 }, // DUTY AS
+                    4: { cellWidth: 25 }, // TYPE OF WORK
+                    5: { cellWidth: 20 }, // STATUS ABSEN
+                    6: { cellWidth: 20 }, // ABSEN MASUK
+                    7: { cellWidth: 20 }, // ABSEN PULANG
+                    8: { cellWidth: 20 }, // TOTAL TIME
+                    9: { cellWidth: 40, halign: 'left' } // REMARKS PEKERJAAN
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                margin: { top: 50, left: 10, right: 10 }
+            });
+            
+            // Add footer with employee names if name filter is applied
+            if (nameFilter) {
+                const finalY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Karyawan yang ditampilkan:', 15, finalY);
+                
+                const uniqueEmployees = [...new Set(data.map(record => record.employeeName))];
+                doc.setFont('helvetica', 'normal');
+                doc.text(uniqueEmployees.join(', '), 15, finalY + 7);
+            }
+            
+            // Add page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Halaman ${i} dari ${pageCount}`, pageWidth - 30, doc.internal.pageSize.getHeight() - 10);
+            }
+            
+            // Generate filename
+            const dateStr = filterDate.toISOString().split('T')[0];
+            const periodStr = periodFilter === 'daily' ? 'Harian' : periodFilter === 'weekly' ? 'Mingguan' : 'Bulanan';
+            const nameStr = nameFilter ? `_${nameFilter.replace(/\s+/g, '_')}` : '';
+            const filename = `Rekap_Absensi_${periodStr}_${dateStr}${nameStr}.pdf`;
+            
+            // Save the PDF
+            doc.save(filename);
+        }
+        
+        function formatIndonesianDate(date) {
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            
+            return `${day} ${month} ${year}`;
+        }
+        
+        function formatIndonesianDateTime(date) {
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+            
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+        
+        function formatTime(dateTime) {
+            const date = new Date(dateTime);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+            
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
         // Logout function
         function logout() {
             currentUser = null;
@@ -3770,5 +4042,5 @@
             document.getElementById('profilePhotoPreview').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236B7280'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'977263e852af5fe7',t:'MTc1NjUzNzAwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97727cc31180ce05',t:'MTc1NjUzODAyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
